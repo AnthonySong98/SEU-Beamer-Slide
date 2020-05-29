@@ -1,3 +1,4 @@
+% !TEX program = xelatex
 \documentclass[10pt,aspectratio=43,mathserif]{beamer}		
 %设置为 Beamer 文档类型，设置字体为 10pt，长宽比为16:9，数学字体为 serif 风格
 
@@ -6,7 +7,8 @@
 \usepackage{xeCJK}
 \usepackage{amsmath,amsfonts,amssymb,bm}
 \usepackage{color}
-\usepackage{graphicx,hyperref,url}	
+\usepackage{graphicx,hyperref,url}
+\usepackage{subfigure}	
 %%%%%%%%%%%%%%%%%%
 
 
@@ -39,21 +41,21 @@
 
 
 %%%%----首页信息设置----%%%%
-\title[Sending out an SMS]{\fontsize{13pt}{18pt}\selectfont {Sending out an SMS: Characterizing the Security of the SMS Ecosystem with Public Gateways}}
-\subtitle{\fontsize{9pt}{14pt}\selectfont \textbf{利用公共网关的SMS生态系统的安全性描述}}			
+\title[RF-based Blood Donor Recruitment]{\fontsize{13pt}{18pt}\selectfont {基于随机森林的献血招募模型}}
+%\subtitle{\fontsize{9pt}{14pt}\selectfont \textbf{基于随机森林的献血招募模型}}			
 %%%%----标题设置
 
 
-\author[R. Song]{
-  Bradley Reaves, Nolen Scaife, Dave Tian, Logan Blue, \\
-  Patrick Traynor and Kevin R.B. Butler \\\medskip
-  {\small {\{reaves, scaife, daveti, bluel\}@ufl.edu}} \\
-  {\small {\{traynor, butler\}@cise.ufl.edu}}}
+\author[Zixing Song]{
+  宋子星 \\
+  %{\small {songzixing@seu.edu}
+  }
+
 %%%%----个人信息设置
 
-\institute[FICS]{
-  Florida Institute for Cybersecurity Research (FICS)\\
-  University of Florida}
+\institute[SEU]{
+  东南大学计算机科学与工程学院\\
+  }
 %%%%----机构信息
 
 \date[\today]{
@@ -76,66 +78,212 @@
 		\textbf{\tableofcontents}
 		\end{frame}				%生成提纲页
 
-\section{引言}
+\section{背景}
 
 		\begin{frame}
-			\frametitle{\textbf{引言}}
-            \begin{block}{\textbf{研究背景}}
+            \frametitle{\textbf{背景}}
+
+            \begin{block}{\textbf{现状与意义}}
                 \begin{itemize}
-                    \item 短信息(SMS)成为现代通讯的重要组成部分
-                    \item 很多组织或网站使用短信息作为身份验证的辅助通道
-                    \item 现代短消息的发送，在抵达终端之前不接触蜂窝网络
+                    \item 医疗领域：当前献血招募主要采取人力招募方式
+                    \item 计算机领域：机器学习技术迅猛发展
+                    \item 献血招募 + 机器学习 $\Rightarrow$ 提升招募精度 + 降低招募成本 ?
                 \end{itemize}
             \end{block}
 
-            \begin{block}{\textbf{主要工作}}
+            \begin{figure}[!t]
+                \centering 
+                \subfigure{
+                    \includegraphics[width=2in]{figures/blood_donation.jpg}
+                }
+                \subfigure{
+                    \includegraphics[width=2in]{figures/medical_AI.jpg}
+                }
+            \end{figure}
+
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{\textbf{研究问题}}
+        \begin{figure}[!t]
+            \centering 
+            \includegraphics[width=4in]{figures/samples.png}
+        \end{figure}
+        
+        \begin{figure}[!t]
+            \centering 
+            \includegraphics[width=4in]{figures/training1.png}
+        \end{figure}
+
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{\textbf{研究问题}}
+        \begin{figure}[!t]
+            \centering 
+            \includegraphics[width=4in]{figures/samples.png}
+        \end{figure}
+        
+        \begin{figure}[!t]
+            \centering 
+            \includegraphics[width=4in]{figures/testing1.png}
+        \end{figure}
+
+    \end{frame}
+
+\section[理论]{随机森林理论}
+
+		\begin{frame}
+		  \frametitle{\textbf{集成学习(Ensemble Learning)}}
+            \begin{figure}[!t]
+            \centering
+            \includegraphics[width=4in]{figures/el.png}
+            \caption{集成学习流程框架}
+            \label{el}
+            \end{figure}
+            \textbf{集成学习}是指用于训练多个学习器并组合其输出，可以将其视为“决策委员会”的投票决策结果。
+		\end{frame}
+
+		\begin{frame}
+		  \frametitle{\textbf{Bagging}}
+            \begin{figure}[!t]
+            \centering
+            \includegraphics[width=3.5in]{figures/bagging.png}
+            \caption{Bagging算法}
+            \label{bagging}
+            \end{figure}
+            \textbf{Bagging}利用\textit{有放回抽样}生成新的训练数据集(Bootstrap samples)。
+		\end{frame}
+
+        \begin{frame}
+		  \frametitle{\textbf{决策树 (Desicion Tree)}}
+            \begin{columns}
+                \column{.5\textwidth}
+                \footnotesize
+                \begin{figure}[!t]
+                    \centering
+                    \includegraphics[width=1.1\textwidth]{figures/dt_eg.png}
+                    \caption{决策树案例}
+                    \label{figure3_OTT}
+                \end{figure}
+
+                \column{.5\textwidth}
+                \begin{figure}[!t]
+                    \centering
+                    \includegraphics[width=1.1\textwidth]{figures/dt_general.png}
+                    \caption{决策树归纳案例}
+                    \label{figure3_OTT}
+                \end{figure}
+            \end{columns}
+            决策树的训练：构建一棵决策树（ID3，C4.5，CART）。\\
+            决策树的测试：自顶而下匹配一条路径。
+        \end{frame}
+        
+        \begin{frame}
+            \frametitle{\textbf{决策树生成算法}}
+            \begin{columns}
+                \column{.4\textwidth}
+                \footnotesize
                 \begin{itemize}
-                    \item 对SMS数据进行迄今为止最大的挖掘分析
-                    \item 评估良性短消息服务的安全态势
-                    \item 刻画通过SMS网关进行的恶意行为
+                    \item 训练集样本特征：性别、年龄和职业。
+                    \item 预测目标：是否喜欢玩电脑游戏。
+                    \item 算法关键：每次寻找出当前最佳分割属性。
+                \end{itemize}
+
+                \column{.6\textwidth}
+                \begin{figure}[!t]
+                    \centering
+                    \includegraphics[width=1\textwidth]{figures/dt_gen_0.png}
+                \end{figure}
+            \end{columns}
+        \end{frame}
+
+        \begin{frame}
+            \frametitle{\textbf{决策树生成算法}}
+            \begin{columns}
+                \column{.4\textwidth}
+                \footnotesize
+                \begin{itemize}
+                    \item 训练集样本特征：性别、年龄和职业。
+                    \item 预测目标：是否喜欢玩电脑游戏。
+                    \item 根据某分割指标，从3个属性中选择\textbf{年龄}作为分割属性，分裂节点。
+                    \item 无需分割，则停止分裂节点。
+                \end{itemize}
+
+                \column{.6\textwidth}
+                \begin{figure}[!t]
+                    \centering
+                    \includegraphics[width=1.1\textwidth]{figures/dt_gen_1.png}
+                \end{figure}
+            \end{columns}
+        \end{frame}
+
+        \begin{frame}
+            \frametitle{\textbf{决策树生成算法}}
+            \begin{columns}
+                \column{.4\textwidth}
+                \footnotesize
+                \begin{itemize}
+                    \item 训练集样本特征：性别、年龄和职业。
+                    \item 预测目标：是否喜欢玩电脑游戏。
+                    \item 对需要再次分割的节点，根据某分割指标，从剩下的2个属性中选择\textbf{性别}作为分割属性，分裂节点。
+                \end{itemize}
+
+                \column{.6\textwidth}
+                \begin{figure}[!t]
+                    \centering
+                    \includegraphics[width=1.1\textwidth]{figures/dt_gen.png}
+                \end{figure}
+            \end{columns}
+        \end{frame}
+
+        \begin{frame}
+            \frametitle{\textbf{决策树生成算法}}
+            \begin{table}[htbp!]
+                \caption{三种最常见的决策树生成算法比较}
+                \label{dt_compare}
+                \centering
+                \begin{tabular}{c c c c c c}
+                \hline
+                生成算法 & 分割指标  & 支持的属性 & 缺失值处理 \\ \hline
+                ID3 & 信息增益 & 仅离散属性 & 不支持\\     
+                C4.5 & 信息增益率  & 离散、连续属性 & 支持\\    
+                CART & 基尼指数 & 离散、连续属性 & 支持 \\ \hline
+                \end{tabular}
+            \end{table}
+        \end{frame}
+
+        \begin{frame}
+            \frametitle{\textbf{随机森林 (Random Forest)}}
+            \begin{block}{\textbf{随机森林的随机性}}
+                \begin{itemize}
+                  \item 随机森林 = Bagging + 决策树（CART）
+                  \item 训练集生成的随机性 $\Rightarrow$ Bagging (Bootstrap样本)
+                  \item 特征变量选取的随机性 $\Rightarrow$ 决策树生成中，每次分裂节点时，随机选择一部分特征作为候选分割属性，
+                    常见$M=\sqrt{N}$，$M=\log _2{N}$，再从候选属性中，寻找出最佳分割属性。
                 \end{itemize}
             \end{block}
         \end{frame}
 
-\section[系统]{现代SMS生态系统}
-
-		\begin{frame}
-		  \frametitle{\textbf{短消息服务中心(SMSC)}}
-            \begin{figure}[!t]
-            \centering
-            \includegraphics[width=4in]{figures/figure1.png}
-            \caption{短消息服务中心}
-            \label{figure1_SMSC}
-            \end{figure}
-            \textbf{短消息服务中心}通过运营商网络路由消息，是SMS系统的核心。\\
-            SMSC接受文本消息，并将消息转发到蜂窝网络中的移动用户。
-		\end{frame}
-
-		\begin{frame}
-		  \frametitle{\textbf{外部短消息实体(ESME)}}
-            \begin{figure}[!t]
-            \centering
-            \includegraphics[width=4in]{figures/figure2.png}
-            \caption{外部短消息实体}
-            \label{figure2_ESME}
-            \end{figure}
-            \textbf{外部短消息实体}为外部组织提供针对运营商网络的短消息接入服务。\\
-            ESME可以用于紧急通报、慈善捐款、或接受一次性验证码等功能。
-		\end{frame}
-
         \begin{frame}
-		  \frametitle{\textbf{OTT服务}}
-			\begin{figure}[!t]
-            \centering
-            \includegraphics[width=4in]{figures/figure3.png}
-            \caption{OTT服务}
-            \label{figure3_OTT}
-            \end{figure}
-            \textbf{OTT服务}支持在数据网络上提供短信和语音等第三方服务。\\
-            OTT可以使用云服务来存储和同步SMS到用户的其他设备。
-		\end{frame}
-
-
+            \frametitle{\textbf{随机森林 (Random Forest)}}
+              \begin{columns}
+                  \column{.5\textwidth}
+                  \footnotesize
+                  \begin{figure}[!t]
+                      \centering
+                      \includegraphics[width=1.15\textwidth]{figures/rf_training.png}
+                      \caption{随机森林训练过程}
+                  \end{figure}
+  
+                  \column{.5\textwidth}
+                  \begin{figure}[!t]
+                      \centering
+                      \includegraphics[width=1.1\textwidth]{figures/rf_testing.png}
+                      \caption{随机森林测试过程}
+                  \end{figure}
+              \end{columns}
+          \end{frame}
 
 \section[方法]{研究方法与数据集特征}
 
