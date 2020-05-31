@@ -285,216 +285,217 @@
               \end{columns}
           \end{frame}
 
-\section[方法]{研究方法与数据集特征}
+\section[模型]{献血招募模型}
 
 
 		\begin{frame}
-		  \frametitle{\textbf{爬取公共短消息网关}}
+		  \frametitle{\textbf{献血者特征提取}}
             % ----------------分栏的结构开始---------------- %
             % 该结构中使用block分开两个内容区
             % 可根据需要进行图文混排？我还没试过，我想应该可以
             \begin{columns}
                 \column{.5\textwidth}
                 \footnotesize
-                \begin{itemize}
-                  \item 使用Scrapy框架爬取公共网关
-                  \item 收集8个公共短信网关在14个月的数据
-                  \item 共抓取386,327条数据
-                \end{itemize}
-
-                \column{.5\textwidth}
-                \begin{table}
-                \caption{公共网关及抓取的信息数}
-                \label{table1:gateways}
-                \centering
-                \footnotesize
-                \begin{tabular}{|c|c|}
-                \hline
-                \textbf{Site}           & \textbf{Messages}\\
-                \hline
-                receivesmsonline.net    &81313\\
-                \hline
-                receive-sms-online.info &69389\\
-                \hline
-                receive-sms-now.com     &63797\\
-                \hline
-                 hs3x.com               &55499\\
-                \hline
-                receivesmsonline.com    &44640\\
-                \hline
-                receivefreesms.com      &37485\\
-                \hline
-                receive-sms-online.com  &27094\\
-                \hline
-                 e-receivesms.com       &7107\\
-                \hline
-                \end{tabular}
-                \end{table}
-            \end{columns}
-
-		\end{frame}
-
-        \begin{frame}
-		  \frametitle{\textbf{消息聚类分析}}
-            \begin{block}{\textbf{基本思路}}
-                \begin{itemize}
-                    \item 使用编辑距离矩阵将类似的消息归于一张连通图中。
-                    \item 使用固定值替换感兴趣的消息，如代码、email地址。
-                    \item 查找归一化距离小于阈值的消息，并确定聚类边界。
-                \end{itemize}
-            \end{block}
-
-            \begin{block}{\textbf{实现步骤}}
-                \begin{enumerate}
-                  \item 加载所有消息。
-                  \item 用固定的字符串替换数字、电子邮件和URL以预处理消息。
-                  \item 将预处理后的信息按字母排序。
-                  \item 通过使用编辑距离阈值(0.9)来确定聚类边界。
-                  \item 手动标记各个聚类，以确定服务提供者、消息类别等。
-                \end{enumerate}
-            \end{block}
-		\end{frame}
-
-        \begin{frame}
-		  \frametitle{\textbf{消息分类结果}}
-            \begin{itemize}
-                \item \textbf{账户创建确认信息}：向来自服务提供者的用户提供了一个代码，该服务提供者需要在新帐户创建期间进行SMS验证。
-                \item \textbf{活动确认信息}：向来自服务提供者的用户提供了请求授权进行活动的代码(例如，付款确认)。
-                \item \textbf{一次性密码}：包含用户登录的代码的短信息。
-                \item \textbf{用于绑定不同设备的一次性口令}：将消息发送给用户，以绑定一个新的电话号码或启用相应的移动应用程序。
-                \item \textbf{重置密码口令}：包含密码重置密码的短信息。
-                \item \textbf{其他}：其他未被指定为某种特定功能的消息。
-            \end{itemize}
-		\end{frame}
-
-        \begin{frame}
-		  \frametitle{\textbf{消息分类结果}}
-            \begin{columns}
-                \column{.5\textwidth}
-                \footnotesize
-                \begin{itemize}
-                  \item 账户创建和移动设备绑定占比最大，占51.6\%
-                  \item 一次性密码信息占7.6\%
-                  \item 密码重置消息占1.3\%
-                  \item 包含“测试”关键词的消息占0.8\%
-                \end{itemize}
+                \begin{figure}[!t]
+                    \centering
+                    \includegraphics[width=1\textwidth]{figures/record.png}
+                    \caption{原始献血记录}
+                \end{figure}
 
                 \column{.5\textwidth}
                 \begin{figure}[!t]
                     \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure4.png}
-                    \caption{消息的聚类}
-                    \label{figure3_OTT}
+                    \includegraphics[width=1\textwidth]{figures/feature.png}
+                    \caption{特征提取结果}
+                \end{figure}
+                
+            \end{columns}
+
+		\end{frame}
+
+        \begin{frame}
+		  \frametitle{\textbf{决策树和随机森林的实现}}
+            \begin{block}{\textbf{主要贡献}}
+                \begin{itemize}
+                    \item 利用层次遍历的思想，将主流的递归版本的决策树生成算法转化为非递归版本。
+                    \item 利用graphviz，将决策树和随机森林可视化。
+                    \item 利用UCI公开数据集，初步评测了模型性能。
+                \end{itemize}
+            \end{block}
+
+            \begin{table}[]
+                \caption{3种决策树时间性能比较(UCI数据集)}
+                \label{dt_time_compare}
+                \centering
+                \begin{tabular}{cccc}
+                \hline
+                算法版本 & ID3 (ms)             & C4.5 (ms)            & CART (ms)            \\ \hline
+                递归   & 342.64±7.23          & 225.36±4.68          & 285.41±10.23         \\
+                非递归  & \textbf{213.45±6.13} & \textbf{121.39±8.09} & \textbf{135.67±8.79} \\ \hline
+                提升率  & 37.70\%              & 46.13\%              & 52.64\%              \\ \hline
+                \end{tabular}
+            \end{table}
+
+        \end{frame}
+        
+        \begin{frame}
+		  \frametitle{\textbf{决策树和随机森林的实现}}
+          \begin{figure}[!t]
+            \centering
+            \includegraphics[width=1.1\textwidth]{figures/test_3_random_decision_tree_0.pdf}
+            \caption{训练的随机森林中的某棵决策树可视化（UCI数据集）}
+        \end{figure}
+		\end{frame}
+
+\section[实验]{实验分析}
+
+		\begin{frame}
+		  \frametitle{\textbf{数据集特征分布分析}}
+		  \begin{block}{\textbf{特征分布}}
+                \begin{itemize}
+                    \item 绘制了箱形图（Box-whisker Plot）和直方图（Histogram）。
+                    \item 利用核密度估计（Kernel Density Estimation）
+                    绘制出了变量的概率密度函数。
+                \end{itemize}
+            \end{block}
+            \begin{columns}
+                \column{.5\textwidth}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=1\textwidth]{figures/age.png}
+                    \caption{特征\textbf{年龄}的箱形图（UCI数据集）}
+                \end{figure}
+
+                \column{.5\textwidth}
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=1\textwidth]{figures/dis_Age.png}
+                    \caption{特征\textbf{年龄}的直方图（UCI数据集）}
                 \end{figure}
             \end{columns}
 		\end{frame}
 
-
-
-\section[分析]{SMS使用情况分析}
-
-
-		\begin{frame}
-		  \frametitle{\textbf{使用SMS作为安全信道}}
-		  \begin{block}{\textbf{PII和其他敏感信息}}
+        \begin{frame}
+		  \frametitle{\textbf{超参数分析}}
+            \begin{block}{\textbf{内部超参数}}
                 \begin{itemize}
-                    \item 财务信息
-                    \item 用户名和密码
-                    \item 重置密码口令
-                    \item 其他个人识别信息(PII)
-                    \item 敏感程序的SMS活动
+                    \item 基分类器的数量。
+                    \item 决策树生成算法。（ID3，C4.5，CART算法）
+                    \item 分裂节点时选择特征的比例公式。（$M=\sqrt{N}$，$M=\log _{2}{N}$和$M=N$）
+                \end{itemize}
+            \end{block}
+
+            \begin{block}{\textbf{外部超参数}}
+                \begin{itemize}
+                    \item 训练样本的数量。
                 \end{itemize}
             \end{block}
 		\end{frame}
 
-        \begin{frame}
-		  \frametitle{\textbf{使用SMS作为安全信道}}
-            \begin{block}{\textbf{SMS编码熵}}
-                使用 $\chi$方检验测试每组编码的熵。$\chi$方检验是一个零假设的显著性检验，用于测试SMS服务的编码是否是从低位到高位均匀分布的。若p值小于0.01，则表明观测值和理想均匀分布之间存在统计学上的显著差异。
-                检验结果表明，65\%的SMS服务的编码熵较低，容易被预测和攻击。
-            \end{block}
-            \begin{columns}
-
-                \column{.26\textwidth}
-                \begin{figure}
-                    \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure6.png}
-                    \caption{WeChat}
-                    \label{figure6_WeChat}
-                \end{figure}
-
-                \column{.26\textwidth}
-                \begin{figure}
-                    \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure7.png}
-                    \caption{Talk2}
-                    \label{figure3_Talk2}
-                \end{figure}
-
-                \column{.26\textwidth}
-                \begin{figure}
-                    \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure8.png}
-                    \caption{Google}
-                    \label{figure3_Google}
-                \end{figure}
-
-            \end{columns}
-
-		\end{frame}
-
 		\begin{frame}
-		  \frametitle{\textbf{SMS的恶意应用}}
-            \begin{block}{\textbf{公共网关检测到的恶意信息}}
-    		  \begin{itemize}
-    		    \item \textbf{泄露用户位置信息}：短URL可以用于确定消息的源和目的地，即会泄漏用户的位置信息。
-    		    \item \textbf{垃圾邮件宣传广告}：在公共网关服务中比例较低，约为1.0\%。
-                \item \textbf{网络钓鱼活动}：试图欺骗用户，使其相信自己正与合法网站通信。
-    		  \end{itemize}
-            \end{block}
-
+		  \frametitle{\textbf{内部超参数分析}}
             \begin{columns}
-
-                \column{.26\textwidth}
+                \column{.5\textwidth}
                 \begin{figure}
                     \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure9.png}
-                    \caption{SMS地址分布}
-                    \label{figure9_WeChat}
+                    \includegraphics[width=1\textwidth]{figures/hyperpara_criterion_oob_2.pdf}
+                    \caption{基分类器数目和决策树生成算法对OOB错误率的影响}
                 \end{figure}
 
-                \column{.26\textwidth}
+                \column{.5\textwidth}
                 \begin{figure}
                     \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure10.png}
-                    \caption{钓鱼短信实例}
-                    \label{figure10_Talk2}
+                    \includegraphics[width=1\textwidth]{figures/hyperpara_criterion_mean_acc_2.pdf}
+                    \caption{基分类器数目和决策树生成算法对预测精度的影响}
                 \end{figure}
-
-                \column{.26\textwidth}
-                \begin{figure}
-                    \centering
-                    \includegraphics[width=1.1\textwidth]{figures/figure11.png}
-                    \caption{钓鱼网站}
-                    \label{figure11_Talk2}
-                \end{figure}
-
             \end{columns}
+        \end{frame}
+        
+        \begin{frame}
+            \frametitle{\textbf{内部超参数分析}}
+              \begin{columns}
+                  \column{.5\textwidth}
+                  \begin{figure}
+                      \centering
+                      \includegraphics[width=1\textwidth]{figures/hyperpara_max_features_oob_2.pdf}
+                      \caption{基分类器数目和节点分裂时特征选择比例对OOB错误率的影响}
+                  \end{figure}
+  
+                  \column{.5\textwidth}
+                  \begin{figure}
+                      \centering
+                      \includegraphics[width=1\textwidth]{figures/hyperpara_max_features_mean_acc_2.pdf}
+                      \caption{基分类器数目和节点分裂时特征选择比例对预测精度的影响}
+                  \end{figure}
+              \end{columns}
+          \end{frame}
 
-		\end{frame}
+          \begin{frame}
+            \frametitle{\textbf{模型性能比较分析}}
+            \begin{table}[]
+                \caption{随机森林在真实数据集上性能比较（与其他集成学习算法比较）}
+                \label{compare_ensemble}
+                \centering
+                \begin{tabular}{ccc}
+                \hline
+                算法                    & 准确率     \\ \hline
+                Decision Tree         & 0.929±0.042          \\ 
+                Bagging+Decision Tree & 0.956±0.039          \\
+                AdaBoost              & 0.950±0.032          \\
+                Gradient Boosting     & 0.959±0.040          \\ \hline
+                Random Forest         & \textbf{0.969±0.039} \\ \hline
+                \end{tabular}
+            \end{table}
 
-\section[结论]{结论}
+            \begin{table}[]
+                \caption{随机森林在真实数据集上性能比较（与其他分类算法比较）}
+                \label{compare_other}
+                \centering
+                \begin{tabular}{ccc}
+                \hline
+                算法             & 准确率                      \\ \hline
+                SVM            & 0.952±0.042          \\
+                KNN            & 0.943±0.004        \\
+                Neural network & 0.941±0.002         \\
+                SGD            & 0.952±0.142         \\ \hline
+                Random Forest             & \textbf{0.969±0.039} \\ \hline
+                \end{tabular}
+            \end{table}
 
+          \end{frame}
+
+          \begin{frame}
+            \frametitle{\textbf{模型性能比较分析}}
+            \begin{figure}[htbp!]
+                \centering \includegraphics[width=0.8\textwidth]{figures/intra_whole_roc.pdf} 
+                \caption{表\ref{compare_ensemble}中对应算法的ROC曲线比较}
+            \end{figure}
+          \end{frame}
+
+          \begin{frame}
+            \frametitle{\textbf{模型性能比较分析}}
+            \begin{figure}[htbp!]
+                \centering \includegraphics[width=0.8\textwidth]{figures/inter_whole_roc.pdf} 
+                \caption{表\ref{compare_other}中对应算法的ROC曲线比较}
+            \end{figure}
+          \end{frame}
+\section[结论]{总结}
 
 		\begin{frame}
 		  \frametitle{\textbf{结论}}
-		
-		  \begin{itemize}
-		    \item SMS生态系统在智能手机时代出现了新的发展，加入了更多新的设备和参与者。
-		    \item 公共网关为用户提供了基于SMS的各种安全解决方案。
-            \item 根据该研究，将SMS作为安全信道传递敏感信息存在一定的危险性。一些一次性的消息传递机制亟待改进。
-            \item 至于短信滥用，公共网关可以用于规避一些安全性较差的认证机制，或进行PVA欺诈行为。
-		  \end{itemize}
+          \begin{enumerate}
+            \item 将随机森林算法引入到献血者招募问题当中，
+            给出了一种利用机器学习技术辅助医护人员进行精准招募的方法，
+            提升了招募精度，降低了招募成本。
+            \item 对当前学术界医疗和机器学习相关技术进行了全面而深入的文献调研
+            工作，总结了近年来医疗AI的发展趋势。
+            \item 改进了三种主流的经典决策树生成算法：ID3、C4.5和CART，
+            将递归版本转化成非递归版本，降低了时空开销，为随机森林的算法
+            实现提供了基础。
+            \item 通过超参数调整，将模型的最终精度提升到了95\%以上，
+            并进行了详尽全面的模型比较分析。
+        \end{enumerate}
+        
 		\end{frame}
 
 
@@ -510,11 +511,6 @@
                     \end{minipage}
                 \end{center}
 
-                \begin{figure}[!t]
-                    \centering
-                    \includegraphics[width=.8\textwidth]{figures/figure5.png}
-                    \label{figure4_ad}
-                \end{figure}
             \end{frame}
 
 \end{document} 
